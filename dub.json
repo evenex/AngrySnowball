@@ -1,0 +1,25 @@
+{
+    "name":         "Angry Snowball",
+    "description":  "A 2D game with Dgame",
+    "authors":  	["Randy Schütt"],
+    "configurations": [
+        {
+            "name": "main",
+            "targetName": "angry-snowball",
+            "targetType": "executable",
+            "sourcePaths": ["."],
+            "importPaths": ["."]
+        }
+    ],
+    "dependencies": {
+        "dgame": "0.5.0"
+    },
+    "buildTypes": {
+        "debug": {
+            "buildOptions": ["debugMode", "debugInfoC", "alwaysStackFrame", "warnings"]
+        },
+        "release": {
+            "buildOptions": ["releaseMode", "inline", "optimize", "noBoundsCheck", "warnings"]
+        }
+    }
+}

@@ -41,3 +41,8 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+*.exe
+.dub/build/main-debug-windows-x86-dmd_2067-55617A927B1276D6E9BB162115B794F6/angry-snowball.obj
+*.obj
+.dub/dub.json
+dub.selections.json
