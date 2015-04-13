@@ -9,11 +9,25 @@ import AngrySnowball.Condition;
 import AngrySnowball.Transition;
 import AngrySnowball.Actor;
 
-abstract class State : Observer, Condition, Transition {
-    static State Standing;
-    static State Moving;
-    static State Droping;
+interface State {
+    static BaseState Standing;
+    static BaseState Moving;
+    static BaseState Droping;
 
+    enum Type : ubyte {
+        Move,
+        Drop,
+        Stand
+    }
+
+    @nogc
+    State handleInput(ref const Event);
+
+    @nogc
+    State execute(ref Actor);
+}
+
+abstract class BaseState : State, Observer, Condition, Transition {
     static this() {
         Standing = new StandState();
         Moving = new MoveState();
@@ -27,12 +41,6 @@ private:
     Transition _trans;
 
 public:
-    @nogc
-    abstract State handleInput(ref const Event);
-
-    @nogc
-    abstract State execute(ref Actor);
-
 final:
     @nogc
     void setInputHandler(InputHandler handler) pure nothrow {
@@ -65,15 +73,15 @@ final:
     }
 
     @nogc
-    void notify(ref Actor actor) const pure nothrow {
+    void notify(Type type, ref Actor actor) const pure nothrow {
         if (_observer)
-            _observer.notify(actor);
+            _observer.notify(type, actor);
     }
 }
 
-final class StandState : State {
+final class StandState : BaseState {
     @nogc
-    override State handleInput(ref const Event event) {
+    State handleInput(ref const Event event) {
         State state = Moving.handleInput(event);
         if (state is null)
             return Moving;
@@ -81,18 +89,18 @@ final class StandState : State {
     }
 
     @nogc
-    override State execute(ref Actor) {
+    State execute(ref Actor) {
         return null;
     }
 }
 
-final class MoveState : State {
+final class MoveState : BaseState {
 private:
     Command _cmd;
 
 public:
     @nogc
-    override State handleInput(ref const Event event) {
+    State handleInput(ref const Event event) {
         _cmd = _input.handle(event);
         if (_cmd)
             return null;
@@ -100,13 +108,13 @@ public:
     }
 
     @nogc
-    override State execute(ref Actor actor) {
+    State execute(ref Actor actor) {
         if (_cmd) {
             _cmd.execute(actor);
             if (!super.verify(actor))
                 _cmd.undo(actor);
             else
-                super.notify(actor);
+                super.notify(State.Type.Move, actor);
 
             _cmd = null;
 
@@ -117,18 +125,18 @@ public:
     }
 }
 
-final class DropState : State {
+final class DropState : BaseState {
     enum ubyte GRAVITY = 8;
 
     @nogc 
-    override State handleInput(ref const Event) const {
+    State handleInput(ref const Event) const {
         return null;
     }
 
     @nogc
-    override State execute(ref Actor actor) {
+    State execute(ref Actor actor) {
         actor.sprite.move(0, GRAVITY);
-        super.notify(actor);
+        super.notify(State.Type.Drop, actor);
 
         return super.next(actor);
     }

@@ -1,8 +1,9 @@
 module AngrySnowball.Observer;
 
+import AngrySnowball.State;
 import AngrySnowball.Actor;
 
 interface Observer {
     @nogc
-    void notify(ref Actor) const pure nothrow;
+    void notify(State.Type, ref Actor) const pure nothrow;
 }
