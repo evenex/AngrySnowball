@@ -8,11 +8,12 @@
             "targetName": "angry-snowball",
             "targetType": "executable",
             "sourcePaths": ["."],
-            "importPaths": ["."]
+            "importPaths": ["."],
+            "excludedSourceFiles": ["outdated/*.d"]
         }
     ],
     "dependencies": {
-        "dgame": "0.5.0"
+        "dgame": "~master"
     },
     "buildTypes": {
         "debug": {

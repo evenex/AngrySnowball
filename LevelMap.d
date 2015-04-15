@@ -40,11 +40,11 @@ public:
         return _number;
     }
 
-    bool loadNext(ref Actor actor) {
-        return this.load(++_number, actor);
+    bool loadNext(Sprite sprite) {
+        return this.load(++_number, sprite);
     }
 
-    bool load(ubyte lvlNr, ref Actor actor) {
+    bool load(ubyte lvlNr, Sprite sprite) {
         import std.file : read, exists;
         import std.string : indexOf, removechars, format, split;
         import std.conv : to;
@@ -77,10 +77,10 @@ public:
             if (id > 0 && id < 255) {
                 rect.x = (id - 1) * TILE_SIZE;
 
-                Sprite sprite = new Sprite(_tileTex, Vector2f(x * TILE_SIZE, y * TILE_SIZE));
-                sprite.setTextureRect(rect);
+                Sprite tile_sprite = new Sprite(_tileTex, Vector2f(x * TILE_SIZE, y * TILE_SIZE));
+                tile_sprite.setTextureRect(rect);
 
-                _tiles ~= Tile(sprite, TileMasks[id - 1]);
+                _tiles ~= Tile(tile_sprite, TileMasks[id - 1]);
             }
 
             x++;
@@ -90,7 +90,7 @@ public:
             }
         }
 
-        actor.sprite.setPosition(StartPositions[_number - 1]);
+        sprite.setPosition(StartPositions[_number - 1]);
 
         return true;
     }
@@ -102,11 +102,13 @@ public:
     }
 
     @nogc
-    const(Tile)* getTile(ref const Actor actor, Rect.Edge edge = Rect.Edge.BottomLeft) const pure nothrow {
-        const Vector2i edge_pos = actor.sprite.getClipRect().getEdgePosition(edge);
-        const Vector2f pos = edge_pos;
+    inout(Tile)* getTileAt()(auto ref const Vector2i pos) inout pure nothrow {
+        return this.getTileAt(Vector2f(pos));
+    }
 
-        foreach (ref const Tile tile; _tiles) {
+    @nogc
+    inout(Tile)* getTileAt()(auto ref const Vector2f pos) inout pure nothrow {
+        foreach (ref inout Tile tile; _tiles) {
             if (tile.sprite.getPosition() == pos)
                 return &tile;
         }

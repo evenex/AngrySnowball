@@ -7,11 +7,7 @@ import Dgame.System.Keyboard;
 
 import AngrySnowball.Actor;
 import AngrySnowball.LevelMap;
-import AngrySnowball.Observer;
-import AngrySnowball.Command;
-import AngrySnowball.Condition;
-import AngrySnowball.Transition;
-import AngrySnowball.State;
+import AngrySnowball.InputHandler;
 
 enum ubyte MAX_FPS = 60;
 enum ubyte TICKS_PER_FRAME = 1000 / MAX_FPS;
@@ -23,22 +19,10 @@ void main() {
     Spritesheet player = new Spritesheet(player_tex, Rect(0, 0, 32, 32));
     player.setCenter(16, 16);
 
-    Actor actor = Actor(player);
+    Actor actor = Actor(player, &keyboardHandler);
 
     LevelMap lvlMap;
-    lvlMap.loadNext(actor);
-
-    KeyHandler input_handler = new KeyHandler();
-    input_handler.left = new MoveLeft();
-    input_handler.right = new MoveRight();
-
-    State.Standing.setInputHandler(input_handler);
-    State.Moving.setInputHandler(input_handler);
-    State.Droping.setInputHandler(input_handler);
-
-    State.Moving.setCondition(new MoveCondition(lvlMap));
-    State.Moving.setTransition(new MoveTransition(lvlMap));
-    State.Droping.setTransition(new DropTransition(lvlMap));
+    lvlMap.loadNext(actor.sprite);
 
     Font fnt = Font("stuff/font/arial.ttf", 12);
     Text fps = new Text(fnt);
@@ -71,7 +55,7 @@ void main() {
                     actor.handleInput(event);
             }
 
-            actor.execute();
+            actor.execute(lvlMap);
         }
 
         lvlMap.renderOn(wnd);

@@ -22,6 +22,7 @@ struct Tile {
 
     Sprite sprite;
     uint mask;
+    ubyte access;
 
     @nogc
     this(Sprite sprite, uint mask) pure nothrow {
