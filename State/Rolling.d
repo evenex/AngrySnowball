@@ -10,7 +10,7 @@ private:
 
 public:
     @nogc
-    final override void enter() pure nothrow {
+    final override void enter(ref Actor) pure nothrow {
         _rolling = 0;
     }
 
@@ -27,6 +27,13 @@ public:
 
         actor.sprite.move(MOVE * _direction, 0);
         actor.sprite.rotate(ROTATION * _direction);
+        actor.consume();
+
+        if (actor.charge <= 0) {
+            roundPosition(actor, _direction);
+
+            return State.Melting;
+        }
 
         const Rect clip = actor.sprite.getClipRect();
         // is the next-bottom tile walkable?
@@ -54,7 +61,8 @@ public:
         tile = map.getTileAt(pos2);
         if (tile) {
             // Undo Move
-            actor.sprite.move(MOVE * _direction * -1, 0);
+            //actor.sprite.move(MOVE * _direction * -1, 0);
+            roundPosition(actor, _direction);
 
             return State.Standing;
         }

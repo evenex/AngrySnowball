@@ -66,6 +66,8 @@ public:
     static State Standing;
     static State Rolling;
     static State Droping;
+    static State Charging;
+    static State Melting;
 
     @nogc
     static void setInputHandler(InputHandler handler) nothrow {
@@ -73,7 +75,7 @@ public:
     }
 
     @nogc
-    void enter() pure nothrow { }
+    void enter(ref Actor) pure nothrow { }
 
     @nogc
     abstract State handleInput(ref const Event) nothrow;
@@ -84,8 +86,12 @@ static this() {
     import AngrySnowball.State.Standing;
     import AngrySnowball.State.Rolling;
     import AngrySnowball.State.Droping;
+    import AngrySnowball.State.Charging;
+    import AngrySnowball.State.Melting;
 
     State.Standing = new StandState();
     State.Rolling = new RollState();
     State.Droping = new DropState();
+    State.Charging = new ChargeState();
+    State.Melting = new MeltState();
 }

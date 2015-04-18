@@ -9,6 +9,8 @@ final class StandState : State {
         _direction = _inputHandler(event);
         if (_direction == Direction.Left || _direction == Direction.Right) {
             return State.Rolling;
+        } else if (_direction == Direction.Down) {
+            return State.Charging;
         }
 
         return null;
