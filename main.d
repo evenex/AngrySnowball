@@ -9,17 +9,21 @@ import AngrySnowball.Actor;
 import AngrySnowball.LevelMap;
 import AngrySnowball.InputHandler;
 
+import AngrySnowball.State.State;
+
 enum ubyte MAX_FPS = 60;
 enum ubyte TICKS_PER_FRAME = 1000 / MAX_FPS;
 
 void main() {
     Window wnd = Window(640, 480, "Dgame Test");
+    wnd.setClearColor(Color4b(230, 230, 230));
 
     Texture player_tex = Texture(Surface("stuff/images/snowball.png"));
     Spritesheet player = new Spritesheet(player_tex, Rect(0, 0, 32, 32));
     player.setCenter(16, 16);
 
-    Actor actor = Actor(player, &keyboardHandler);
+    Actor actor = Actor(player);
+    State.setInputHandler(&keyboardHandler);
 
     LevelMap lvlMap;
     lvlMap.loadNext(actor.sprite);

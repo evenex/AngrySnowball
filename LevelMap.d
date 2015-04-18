@@ -5,7 +5,6 @@ import Dgame.Graphic.Texture;
 import Dgame.Graphic.Surface;
 import Dgame.Window.Window;
 import Dgame.Math.Vector2;
-import Dgame.Math.Rect;
 
 import AngrySnowball.Actor;
 import AngrySnowball.Tile;
@@ -15,7 +14,6 @@ immutable string LevelFmt = "stuff/map/Level_%d.tmx";
 immutable string StartTag = "<data encoding=\"csv\">";
 immutable string EndTag = "</data>";
 
-enum ubyte TILE_SIZE = 32;
 enum ubyte MAP_WIDTH = 20;
 
 private immutable Vector2f[1] StartPositions = [
@@ -44,9 +42,13 @@ public:
         return this.load(++_number, sprite);
     }
 
+    bool reload(Sprite sprite) {
+        return this.load(_number, sprite);
+    }
+
     bool load(ubyte lvlNr, Sprite sprite) {
         import std.file : read, exists;
-        import std.string : indexOf, removechars, format, split;
+        import std.string : indexOf, removechars, format, split, strip;
         import std.conv : to;
 
         if (_tileTex.width == 0)
@@ -70,15 +72,11 @@ public:
         }
 
         ubyte x, y;
-        Rect rect = Rect(0, 0, TILE_SIZE, TILE_SIZE);
         import std.stdio : writeln;
         foreach (string s; map.split(',')) {
-            immutable int id = to!(int)(s);
+            immutable ubyte id = to!(ubyte)(s.strip);
             if (id > 0 && id < 255) {
-                rect.x = (id - 1) * TILE_SIZE;
-
                 Sprite tile_sprite = new Sprite(_tileTex, Vector2f(x * TILE_SIZE, y * TILE_SIZE));
-                tile_sprite.setTextureRect(rect);
 
                 _tiles ~= Tile(tile_sprite, TileMasks[id - 1]);
             }
@@ -97,20 +95,28 @@ public:
 
     void renderOn(ref const Window wnd) {
         foreach (ref Tile tile; _tiles) {
+            if (tile.mask == 0)
+                continue;
             wnd.draw(tile.sprite);
         }
     }
 
     @nogc
-    inout(Tile)* getTileAt()(auto ref const Vector2i pos) inout pure nothrow {
-        return this.getTileAt(Vector2f(pos));
+    inout(Tile)* getTileAt()(auto ref const Vector2i pos, uint* idx = null) inout pure nothrow {
+        return this.getTileAt(Vector2f(pos), idx);
     }
 
     @nogc
-    inout(Tile)* getTileAt()(auto ref const Vector2f pos) inout pure nothrow {
-        foreach (ref inout Tile tile; _tiles) {
-            if (tile.sprite.getPosition() == pos)
+    inout(Tile)* getTileAt()(auto ref const Vector2f pos, uint* idx = null) inout pure nothrow {
+        foreach (uint index, ref inout Tile tile; _tiles) {
+            if (tile.mask == 0)
+                continue;
+            
+            if (tile.sprite.getPosition() == pos) {
+                if (idx)
+                    *idx = index;
                 return &tile;
+            }
         }
 
         return null;
