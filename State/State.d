@@ -42,7 +42,7 @@ bool brokeTile(Tile* tile) pure nothrow {
             }
         } else {
             tile.mask |= Tile.Brittle;
-            tile.load();
+            tile.reload();
         }
     }
 

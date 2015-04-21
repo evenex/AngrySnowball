@@ -27,7 +27,7 @@ public:
 
         actor.sprite.move(MOVE * _direction, 0);
         actor.sprite.rotate(ROTATION * _direction);
-        actor.consume();
+        //actor.consume();
 
         if (actor.charge <= 0) {
             roundPosition(actor, _direction);

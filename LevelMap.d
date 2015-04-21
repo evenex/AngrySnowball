@@ -37,14 +37,11 @@ public:
     }
 
     bool loadNext(Sprite sprite) {
-        return this.load(++_number, sprite);
+        ++_number;
+        return this.load(sprite);
     }
 
-    bool reload(Sprite sprite) {
-        return this.load(_number, sprite);
-    }
-
-    bool load(ubyte lvlNr, Sprite sprite) {
+    bool load(Sprite sprite) {
         import std.file : read, exists;
         import std.string : format, split, strip;
         import std.conv : to;
@@ -52,8 +49,6 @@ public:
 
         if (_tileTex.width == 0)
             _tileTex = Texture(Surface(TilesetFile));
-
-        _number = lvlNr;
 
         immutable string level_file = format(LevelFile, _number);
         if (!exists(level_file))
@@ -72,8 +67,7 @@ public:
             immutable ubyte id = to!(ubyte)(s.strip);
             if (id > 0 && id < 255) {
                 Sprite tile_sprite = new Sprite(_tileTex, Vector2f(x * TILE_SIZE, y * TILE_SIZE));
-
-                _tiles ~= Tile(tile_sprite, TileMasks[id - 1]);
+                _tiles ~= Tile(tile_sprite, cast(ubyte)(id - 1));
             }
 
             x++;
@@ -81,6 +75,16 @@ public:
                 x = 0;
                 y++;
             }
+        }
+  
+        sprite.setPosition(StartPositions[_number - 1]);
+
+        return true;
+    }
+
+    bool reload(Sprite sprite) {
+        foreach (ref Tile tile; _tiles) {
+            tile.reload();
         }
 
         sprite.setPosition(StartPositions[_number - 1]);
