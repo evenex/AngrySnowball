@@ -12,18 +12,25 @@ import AngrySnowball.Tile;
 immutable string TilesetFile = "stuff/images/Tileset.png";
 immutable string LevelFile = "stuff/map/Level_%d.tmx";
 
-enum ubyte MAP_WIDTH = 20;
+private:
 
-private immutable Vector2f[1] StartPositions = [
+enum ubyte MAP_WIDTH = 20;
+enum ubyte MAP_HEIGHT = 15;
+
+enum ubyte SPRITE_CLASS_SIZE = __traits(classInstanceSize, Sprite);
+
+ubyte[] TileBuffer = new ubyte[MAP_HEIGHT * MAP_WIDTH * SPRITE_CLASS_SIZE];
+
+immutable Vector2f[1] StartPositions = [
     Vector2f(2 * TILE_SIZE, 1 * TILE_SIZE)
 ];
+
+public:
 
 struct LevelMap {
 private:
     Tile[] _tiles;
-
     Texture _tileTex;
-
     ubyte _number;
 
 public:
@@ -44,7 +51,7 @@ public:
     bool load(Sprite sprite) {
         import std.file : read, exists;
         import std.string : format, split, strip;
-        import std.conv : to;
+        import std.conv : to, emplace;
         import arsd.dom : Document;
 
         if (_tileTex.width == 0)
@@ -63,11 +70,15 @@ public:
         }
 
         ubyte x, y;
+        uint index = 0;
         foreach (string s; data.innerHTML.split(',')) {
             immutable ubyte id = to!(ubyte)(s.strip);
             if (id > 0 && id < 255) {
-                Sprite tile_sprite = new Sprite(_tileTex, Vector2f(x * TILE_SIZE, y * TILE_SIZE));
+                //Sprite tile_sprite = new Sprite(_tileTex, Vector2f(x * TILE_SIZE, y * TILE_SIZE));
+                ubyte[] buf = TileBuffer[index .. index + SPRITE_CLASS_SIZE];
+                Sprite tile_sprite = emplace!(Sprite)(buf, _tileTex, Vector2f(x * TILE_SIZE, y * TILE_SIZE));
                 _tiles ~= Tile(tile_sprite, cast(ubyte)(id - 1));
+                index += SPRITE_CLASS_SIZE;
             }
 
             x++;
