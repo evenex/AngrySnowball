@@ -60,6 +60,15 @@ public:
 
         tile = map.getTileAt(pos2);
         if (tile) {
+            if (tile.mask & Tile.Ice) {
+                // TODO: Tile zerbrechen, wenn der Spieler Steine hat. Die Anzahl an verfügbaren Steinen reduzieren.
+            } else if (tile.mask & Tile.Stone) {
+                // TODO: Steine aufsammeln
+                tile.mask = 0;
+                _rolling = 0;
+                return null;
+            }
+
             // Undo Move
             //actor.sprite.move(MOVE * _direction * -1, 0);
             roundPosition(actor, _direction);
