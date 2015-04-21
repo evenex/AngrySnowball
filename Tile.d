@@ -22,8 +22,8 @@ struct Tile {
     }
 
     Sprite sprite;
-    ubyte id;
     ushort mask;
+    ubyte id;
     ubyte access;
 
     @nogc
@@ -31,17 +31,18 @@ struct Tile {
         this.sprite = sprite;
         this.id = id;
 
-        this.load();
+        this.reset();
     }
 
     @nogc
-    void load() pure nothrow {
+    void reset() pure nothrow {
         this.mask = TileMasks[this.id];
+        this.access = 0;
         this.sprite.setTextureRect(Rect(this.id * TILE_SIZE, 0, TILE_SIZE, TILE_SIZE));
     }
 
     @nogc
-    void reload() pure nothrow {
+    void refresh() pure nothrow {
         uint index = 0;
         foreach (uint idx, ushort mask; TileMasks) {
             if (mask == this.mask) {

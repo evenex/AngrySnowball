@@ -21,7 +21,7 @@ public:
                 return null;
             return State.Standing;
         } else if (actor.sprite.getPosition().y > 1000) {
-            map.reload(actor.sprite);
+            map.reset(actor.sprite);
 
             return State.Standing;
         }

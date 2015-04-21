@@ -82,9 +82,9 @@ public:
         return true;
     }
 
-    bool reload(Sprite sprite) {
+    bool reset(Sprite sprite) {
         foreach (ref Tile tile; _tiles) {
-            tile.reload();
+            tile.reset();
         }
 
         sprite.setPosition(StartPositions[_number - 1]);
