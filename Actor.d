@@ -40,7 +40,7 @@ public:
     void handleInput(ref const Event event) {
         State state = _state.handleInput(event);
         if (state !is null) {
-            state.enter(this);
+            state.enter();
             _state = state;
         }
     }
@@ -48,7 +48,7 @@ public:
     void execute(ref LevelMap map) {
         State state = _state.execute(this, map);
         if (state !is null) {
-            state.enter(this);
+            state.enter();
             _state = state;
         }
     }

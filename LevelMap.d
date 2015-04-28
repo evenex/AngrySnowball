@@ -17,13 +17,28 @@ private:
 enum ubyte MAP_WIDTH = 20;
 enum ubyte MAP_HEIGHT = 15;
 
-enum ubyte SPRITE_CLASS_SIZE = __traits(classInstanceSize, Sprite);
-
-ubyte[] TileBuffer = new ubyte[MAP_HEIGHT * MAP_WIDTH * SPRITE_CLASS_SIZE];
-
 immutable Vector2f[1] StartPositions = [
     Vector2f(2 * TILE_SIZE, 1 * TILE_SIZE)
 ];
+
+ref T reinitialize(T, Args...)(ref T obj, auto ref Args args) if (is(T == class)) {
+    if (obj is null)
+        throw new Exception("Object is null and cannot be reinitialized");
+
+    static if (__traits(hasMember, obj, "__dtor"))
+        obj.__dtor();
+
+    void* addr = cast(void*) obj;
+    enum ClassSize = __traits(classInstanceSize, T);
+    addr[0 .. ClassSize] = obj.classinfo.init[];
+
+    static if (__traits(hasMember, obj, "__ctor"))
+         obj.__ctor(args);
+    else
+        static assert(args.length == 0, "No CTor to initialize object with arguments");
+
+    return obj;
+}
 
 public:
 
@@ -51,7 +66,7 @@ public:
     bool load(Sprite sprite) {
         import std.file : read, exists;
         import std.string : format, split, strip;
-        import std.conv : to, emplace;
+        import std.conv : to;
         import arsd.dom : Document;
 
         if (_tileTex.width == 0)
@@ -64,21 +79,28 @@ public:
         auto document = new Document(cast(string) read(level_file), true, true);
         auto data = document.requireSelector("data");
 
+        immutable size_t len = _tiles.length;
         if (_tiles.length != 0) {
             _tiles.length = 0;
             _tiles.assumeSafeAppend();
         }
 
         ubyte x, y;
-        uint index = 0;
+        size_t index = 0;
         foreach (string s; data.innerHTML.split(',')) {
             immutable ubyte id = to!(ubyte)(s.strip);
             if (id > 0 && id < 255) {
-                //Sprite tile_sprite = new Sprite(_tileTex, Vector2f(x * TILE_SIZE, y * TILE_SIZE));
-                ubyte[] buf = TileBuffer[index .. index + SPRITE_CLASS_SIZE];
-                Sprite tile_sprite = emplace!(Sprite)(buf, _tileTex, Vector2f(x * TILE_SIZE, y * TILE_SIZE));
+                const Vector2f pos = Vector2f(x * TILE_SIZE, y * TILE_SIZE);
+
+                Sprite tile_sprite;
+                if (index < len)
+                    tile_sprite = _tiles.ptr[index].sprite.reinitialize(_tileTex, pos);
+                else 
+                    tile_sprite = new Sprite(_tileTex, pos);
+
                 _tiles ~= Tile(tile_sprite, cast(ubyte)(id - 1));
-                index += SPRITE_CLASS_SIZE;
+
+                index++;
             }
 
             x++;
@@ -87,7 +109,8 @@ public:
                 y++;
             }
         }
-  
+        
+        sprite.setRotation(0);
         sprite.setPosition(StartPositions[_number - 1]);
 
         return true;
@@ -98,6 +121,7 @@ public:
             tile.reset();
         }
 
+        sprite.setRotation(0);
         sprite.setPosition(StartPositions[_number - 1]);
 
         return true;
@@ -112,21 +136,17 @@ public:
     }
 
     @nogc
-    inout(Tile)* getTileAt()(auto ref const Vector2i pos, uint* idx = null) inout pure nothrow {
+    inout(Tile)* getTileAt()(auto ref const Vector2i pos) inout pure nothrow {
         return this.getTileAt(Vector2f(pos), idx);
     }
 
     @nogc
-    inout(Tile)* getTileAt()(auto ref const Vector2f pos, uint* idx = null) inout pure nothrow {
+    inout(Tile)* getTileAt()(auto ref const Vector2f pos) inout pure nothrow {
         foreach (uint index, ref inout Tile tile; _tiles) {
             if (tile.mask == 0)
                 continue;
-            
-            if (tile.sprite.getPosition() == pos) {
-                if (idx)
-                    *idx = index;
+            if (tile.sprite.getPosition() == pos)
                 return &tile;
-            }
         }
 
         return null;

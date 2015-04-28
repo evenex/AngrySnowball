@@ -18,6 +18,8 @@ struct Tile {
         Stone = 0x80,
         Ice = 0x100,
         Brittle = 0x200,
+        Few = 0x400,
+        Many = 0x800,
         Charge = Snow | Ice
     }
 
@@ -55,19 +57,20 @@ struct Tile {
     }
 }
 
-private immutable ushort[14] TileMasks = [
+private immutable ushort[15] TileMasks = [
     Tile.Gras | Tile.Left,
     Tile.Gras,
     Tile.Gras | Tile.Right,
+    Tile.Ice,
+    Tile.Ice | Tile.Brittle,
     Tile.Snow | Tile.Left,
     Tile.Snow,
     Tile.Snow | Tile.Right,
-    Tile.Ice,
-    Tile.Ice | Tile.Brittle,
-    Tile.Solid,
-    Tile.Solid | Tile.Right,
-    Tile.Solid | Tile.Left,
-    Tile.Solid | Tile.Top,
     Tile.Solid | Tile.Bottom,
-    Tile.Stone
+    Tile.Solid | Tile.Left,
+    Tile.Solid | Tile.Right,
+    Tile.Solid,
+    Tile.Solid | Tile.Top,
+    Tile.Stone | Tile.Few,
+    Tile.Stone | Tile.Many
 ];

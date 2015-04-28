@@ -75,7 +75,7 @@ public:
     }
 
     @nogc
-    void enter(ref Actor) pure nothrow { }
+    void enter() pure nothrow { }
 
     @nogc
     abstract State handleInput(ref const Event) nothrow;

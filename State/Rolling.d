@@ -10,7 +10,7 @@ private:
 
 public:
     @nogc
-    final override void enter(ref Actor) pure nothrow {
+    final override void enter() pure nothrow {
         _rolling = 0;
     }
 

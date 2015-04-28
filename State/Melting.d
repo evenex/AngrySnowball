@@ -7,7 +7,7 @@ import AngrySnowball.State.State;
 final class MeltState : State {
 public:
     @nogc
-    final override void enter(ref Actor) pure nothrow {
+    final override void enter() pure nothrow {
         
     }
 

@@ -18,7 +18,7 @@ void main() {
     Window wnd = Window(640, 480, "Dgame Test");
     wnd.setClearColor(Color4b(230, 230, 230));
 
-    Texture player_tex = Texture(Surface("stuff/images/snowball.png"));
+    Texture player_tex = Texture(Surface("stuff/images/snowball-spritesheet.png"));
     Spritesheet player = new Spritesheet(player_tex, Rect(0, 0, 32, 32));
     player.setCenter(16, 16);
 
