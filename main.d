@@ -7,7 +7,6 @@ import Dgame.System.Keyboard;
 
 import AngrySnowball.Actor;
 import AngrySnowball.LevelMap;
-import AngrySnowball.InputHandler;
 
 import AngrySnowball.State.State;
 
@@ -23,7 +22,6 @@ void main() {
     player.setCenter(16, 16);
 
     Actor actor = Actor(player);
-    State.setInputHandler(&keyboardHandler);
 
     LevelMap lvlMap;
     lvlMap.loadNext(actor.sprite);
@@ -56,7 +54,7 @@ void main() {
                     running = false;
                 }
                 else
-                    actor.handleInput(event);
+                    actor.handleEvent(event);
             }
 
             actor.execute(lvlMap);

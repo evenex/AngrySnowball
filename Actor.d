@@ -7,24 +7,22 @@ import Dgame.Window.Event;
 import AngrySnowball.LevelMap;
 import AngrySnowball.State.State;
 
-enum ubyte CHARGE_FREEZE = 2;
-enum ubyte CONSUME_FREEZE = 3;
+enum float CHARGE_FREEZE = 0.001f;
+enum float CONSUME_FREEZE = 0.002f;
 
 struct Actor {
 private:
     Spritesheet _sprite;
     State _state;
 
-    int _frozenness;
+    uint _stoneAmount;
 
 public:
-    bool stone;
-
     @nogc
     this(Spritesheet sprite) nothrow {
         _sprite = sprite;
         _state = State.Standing;
-        _frozenness = 255;
+        _stoneAmount = 0;
     }
 
     @disable
@@ -37,10 +35,10 @@ public:
     }
 
     @nogc
-    void handleInput(ref const Event event) {
-        State state = _state.handleInput(event);
+    void handleEvent(ref const Event event) {
+        State state = _state.handleEvent(event);
         if (state !is null) {
-            state.enter();
+            state.wakeup(this);
             _state = state;
         }
     }
@@ -48,24 +46,51 @@ public:
     void execute(ref LevelMap map) {
         State state = _state.execute(this, map);
         if (state !is null) {
-            state.enter();
+            state.wakeup(this);
             _state = state;
         }
     }
 
     @nogc
+    void setDirection(Direction dir) pure nothrow {
+        ubyte frame = dir == Direction.Left ? 1 : 0;
+        if (_stoneAmount > 0 && _stoneAmount < 10)
+            frame += 2;
+        else if (_stoneAmount >= 10)
+            frame += 4;
+
+        _sprite.selectFrame(frame);
+    }
+
+    @nogc
+    void incStoneAmount(ubyte amount) pure nothrow {
+        _stoneAmount += amount;
+    }
+
+    @nogc
+    bool decStoneAmount(ubyte amount) pure nothrow {
+        if (_stoneAmount >= amount) {
+            _stoneAmount -= amount;
+            return true;
+        }
+        return false;
+    }
+
+    @nogc
     void doCharge() pure nothrow {
-        _frozenness += CHARGE_FREEZE;
+        if (_sprite.getScale() < 1f) 
+            _sprite.scale(CHARGE_FREEZE);
     }
 
     @property
     @nogc
-    int charge() const pure nothrow {
-        return _frozenness;
+    float charge() const pure nothrow {
+        return _sprite.getScale();
     }
 
     @nogc
     void consume() pure nothrow {
-        _frozenness -= CONSUME_FREEZE;
+        if (_sprite.getScale() > 0) 
+            _sprite.scale(CONSUME_FREEZE * -1);
     }
 }

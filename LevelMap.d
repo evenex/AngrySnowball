@@ -116,6 +116,7 @@ public:
         return true;
     }
 
+    @nogc
     bool reset(Sprite sprite) {
         foreach (ref Tile tile; _tiles) {
             tile.reset();
@@ -127,6 +128,7 @@ public:
         return true;
     }
 
+    @nogc
     void renderOn(ref const Window wnd) {
         foreach (ref Tile tile; _tiles) {
             if (tile.mask == 0)
